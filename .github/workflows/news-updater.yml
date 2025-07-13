@@ -1,0 +1,13 @@
+name: News Update Trigger
+
+on:
+  schedule:
+    - cron: "0 */4 * * *"  # Every 4 hours (UTC)
+  workflow_dispatch:  # Optional: trigger manually
+
+jobs:
+  trigger-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call News Update Hook
+        run: curl --silent https://api.enliten.org.in/api/hook/news || echo "News update failed"

@@ -1,0 +1,13 @@
+name: Keep Render App Awake
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"  # every 10 minutes
+  workflow_dispatch:
+
+jobs:
+  ping-render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Curl to your Render app
+        run: curl --silent https://api.enliten.org.in/api/health || echo "Ping failed"
