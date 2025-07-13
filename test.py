@@ -1,0 +1,10 @@
+import json
+import base64
+import time
+a=json.dumps(
+    {'ciphertext': 'x0pwK0+ykxbX5f4hfSjRqV+Yq8Odqxwgr8qcxbt43K7d7HaL9md5241gJ+rhApVurjN5yhO7Yho/V03ppirzS/WUTRNq7Y3aO9f19dU8bo9GmO0iCHFdB6i/x0GRmkUXe/0Dqu+9ZrD46ROmYC2Op7ilpMeEQot/H5BZMB9JZEhMCo659PyVyZL9kB+PijdjMZs/qJX6YYwENyqjISC0bFZUQF8CZhOvd4lNePYLH7SXXkdpQdNp90Z+DJIz/D1utFQ7Ht9y5n5f2B+90VPRytz74J9REERCSmocuhhv8hiAdLZDiWI59zYBSp6GWLoMojSbzMsnNXLC/i4b5n1bDlFqLhC5ZlEL2ckbJKqq5ZFQL452KgZT+EEiCj0mN5nYPhXrCoMyPpAkrniJziljGEcU/O4QYgMljdzV0OorDqgfFyk/kADYxgBimJTeGF4axBHJs2n0M3OXBRUUYxmbiej6oCIPacgxSU2vDAW+B6G64xnbfHpuymjZH9L/zIhsjUccycnl8c9GUUajs+vsiK2JmRi3xatuqXT2PeqBVPQfd1BLiRDxlZvu6BS3yk1IwqO9OsFc7RCLDYwGC2DYIkBo6xgUdkxMyDyf6ln7Dcbt8T0Z2hPOTwSQSyBnmYkpjIAirGCNlFPXD2/9H/DHoG/3bKKH2oUXiAzM4KDsGrwj8AJXp9T6bHwP8du40k6eh04u90L4ux7zt4aVYi6J7xUM33H5/T75u2b4T/v87daNpdSa0a8E22q6a6HmGKMZFUZh5eAms927GzFPT6YUifbHMwe6UNq8Aw2JOuNCbhq3oy71EDTa3U+kINDohb1TBO3Ma/jX7hvUvBcSE4JasNNt+mB+usohZl7SCIPXv38=', 'nonce': 'nmtwQlps34laF6Kc9jHo3w==', 'tag': '1V+OdmEDfEBQPspQN5A/Pg=='}
+)
+
+def temp():
+    return "hjkwdn",int(time.time())
+print(temp())
