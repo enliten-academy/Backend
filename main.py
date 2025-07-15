@@ -300,9 +300,8 @@ def get_user_data():
         print(f"Error fetching quotes: {str(e)}")
         quote = {'quote': 'No quotes available for this date'}
     # user_data['quote']=get_quote();
-    user_data['quote']=quote;
+    user_data['quote']=quote
     # Encrypt response
-    print(user_data)
     encrypted_response = users.encrypt_data(json.dumps(user_data),user_id)
     if(encrypted_response['status']=='error'):
         response_code=401
@@ -766,7 +765,8 @@ def chat():
     user_message = data.get("message")
     is_quiz_mode = data.get("isQuizMode", False)
     is_heuristic_mode = data.get("isHeuristicMode", False)
-    conversation_id = data.get("conversation_id")  # <- FIX: use consistent variable name
+    conversation_id = data.get("conversation_id", False)  # <- FIX: use consistent variable name
+    language = data.get("conversation_id", False)  # <- FIX: use consistent variable name
 
     print(f"Quiz mode: {is_quiz_mode}")
     print(f"User message: {user_message}")
@@ -774,11 +774,11 @@ def chat():
     if not user_message:
         return jsonify({"error": "Missing message"}), 400
 
-    if conversation_id is None:
+    if not conversation_id:
         conversation_id = storage.create_conversation(user_id, generate_title(user_message))
 
     # Get chat response
-    response = get_chat_response(user_id, user_message, is_quiz_mode, is_heuristic_mode)
+    response = get_chat_response(user_id, user_message, is_quiz_mode, is_heuristic_mode, language)
 
     # Store user message
     storage.add_message(conversation_id, data, "user", user_id)
