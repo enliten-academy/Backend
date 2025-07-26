@@ -766,7 +766,7 @@ def chat():
     is_quiz_mode = data.get("isQuizMode", False)
     is_heuristic_mode = data.get("isHeuristicMode", False)
     conversation_id = data.get("conversation_id", False)  # <- FIX: use consistent variable name
-    language = data.get("conversation_id", False)  # <- FIX: use consistent variable name
+    language = data.get("lang", False)  # <- FIX: use consistent variable name
 
     print(f"Quiz mode: {is_quiz_mode}")
     print(f"User message: {user_message}")
