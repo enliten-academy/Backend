@@ -31,6 +31,8 @@ import pytz
 from smart_news import smart_search,get_news
 from utils.admin_encryption import AdminEncryption
 from utils.quotes import get_quote
+from OCRDocument import OCRDocument
+from flask.views import MethodView
 
 from messages.superbase_chat import SupabaseChatStorage
 storage = SupabaseChatStorage()
@@ -300,9 +302,8 @@ def get_user_data():
         print(f"Error fetching quotes: {str(e)}")
         quote = {'quote': 'No quotes available for this date'}
     # user_data['quote']=get_quote();
-    user_data['quote']=quote;
+    user_data['quote']=quote
     # Encrypt response
-    print(user_data)
     encrypted_response = users.encrypt_data(json.dumps(user_data),user_id)
     if(encrypted_response['status']=='error'):
         response_code=401
@@ -766,7 +767,8 @@ def chat():
     user_message = data.get("message")
     is_quiz_mode = data.get("isQuizMode", False)
     is_heuristic_mode = data.get("isHeuristicMode", False)
-    conversation_id = data.get("conversation_id")  # <- FIX: use consistent variable name
+    conversation_id = data.get("conversation_id", False)  # <- FIX: use consistent variable name
+    language = data.get("lang", "English")  # <- FIX: use consistent variable name
 
     print(f"Quiz mode: {is_quiz_mode}")
     print(f"User message: {user_message}")
@@ -774,11 +776,11 @@ def chat():
     if not user_message:
         return jsonify({"error": "Missing message"}), 400
 
-    if conversation_id is None:
+    if not conversation_id:
         conversation_id = storage.create_conversation(user_id, generate_title(user_message))
 
     # Get chat response
-    response = get_chat_response(user_id, user_message, is_quiz_mode, is_heuristic_mode)
+    response = get_chat_response(user_id, user_message, is_quiz_mode, is_heuristic_mode, language)
 
     # Store user message
     storage.add_message(conversation_id, data, "user", user_id)
@@ -803,6 +805,26 @@ def return_messages(id):
     user_id=get_jwt_identity()
     encrypted_data=users.encrypt_data(json.dumps(storage.get_messages(conversation_id=id,user_id=user_id)),user_id)
     return jsonify({'data':encrypted_data}), 200
+
+ocr_service = OCRDocument()
+class OCRAPI(MethodView):
+    @jwt_required()
+    def post(self):
+        user_id = get_jwt_identity()
+        data = request.json
+        base64File = data.get("file")
+
+        if not base64File:
+            return jsonify({"error": "No file provided"}), 400
+
+        text = ocr_service.extract_text(base64File)
+        # text = r"விடுதிகளை மகிழ்வித்துக் கொள்கின்ற \nஎழுதுக :\ni) நாட்டுக்குள் \nii) அமுதுங்கல் \niii) சண்முகி அருந்துங்கல் \niv) உங்களைப் பார்த்து இன்பு \nv) ஏட்டகனாடி \nvi) உங்கள் வீட்டில் ஆனந்தம் நிலவா?\nvii) 2 நாள் உண்ணவோம் வாருங்கள்\n\nதானியம்தூறும் இல்வாழதினையில் \nவிளைந்த குத்து தினையை ஏாமல் \nஇருக் கோணி ஏந்தி ஏாட்டு விடுதினள் \nவிருத்தநின்ற தலைவி என்பது \nஅலக்கியச் செய்தி.\n\ni) விருத்தகோமலூர்க்குச் செல்கின்ற \nii) 60  என்றியனையாது இல்னா."
+        return jsonify({'data': text, 'user_id': user_id}), 200
+
+
+# Register class route
+ocr_view = OCRAPI.as_view("ocr_api")
+app.add_url_rule("/ocr", view_func=ocr_view, methods=["POST"])
 
 
 @app.route("/api/auth/logout", methods=['POST'])
