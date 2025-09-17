@@ -8,16 +8,21 @@ pyotp==2.9.0
 requests==2.31.0
 flask-limiter==3.5.0
 Werkzeug==2.2.3
+
+# AI + APIs
 google-generativeai
-datetime
-google.genai
-razorpay
+google-auth==2.29.0
+rsa==4.9
+cryptography>=42.0.0
 supabase
+razorpay
 groq
 
+# Utils
+datetime
+google.genai
+
+# Build tools
 pip>=25.2
 setuptools>=75.1.0
 wheel
-google-auth==2.29.0
-rsa==4.9
-cryptography
