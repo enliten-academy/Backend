@@ -13,3 +13,4 @@ datetime
 google.genai
 razorpay
 supabase
+groq
