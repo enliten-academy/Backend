@@ -14,3 +14,9 @@ google.genai
 razorpay
 supabase
 groq
+
+pip>=25.2
+setuptools>=75.1.0
+wheel
+google-auth==2.29.0
+rsa==4.9
