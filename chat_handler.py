@@ -43,7 +43,7 @@ def get_chat_response(user_id, user_message, is_quiz_mode=False, is_heuristic_mo
     # Check if user already has a conversation, else create one
     if user_id not in user_chats:
         chat_model = genai.GenerativeModel(
-            model_name='gemini-1.5-flash',
+            model_name='gemini-2.5-flash',
             system_instruction=f"""
         # TNPSC AI Assistant System Instructions
 
@@ -406,7 +406,7 @@ Remember, your ultimate purpose is to make TNPSC preparation more accessible, ef
         try:
             # Use a separate model for text generation
             text_model = genai.GenerativeModel(
-                model_name='gemini-1.5-pro',
+                model_name='gemini-2.5-pro',
                 system_instruction="""
                 You are a heuristic thinker with the below instructions:
     System Instructions for Heuristic Thinking AI
@@ -491,7 +491,7 @@ Use past case-based reasoning (if relevant) to suggest a shortcut solution.
 
 def generate_title(user_message):
     text_model = genai.GenerativeModel(
-                model_name='gemini-1.5-flash',
+                model_name='gemini-2.5-flash',
                 system_instruction=f"""Generate best title for this user chat max of only 10 words dont tells anre give any other response give only the suitable title
                 Dont answer anyquestions or share details.. just generate only title of any of the user message query dont talk anything other then else
                 """)
