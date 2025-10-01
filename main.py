@@ -34,6 +34,11 @@ from utils.quotes import get_quote
 from OCRDocument import OCRDocument
 from flask.views import MethodView
 
+from cryptography.hazmat.primitives import serialization, hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.ciphers import algorithms
+from cryptography.hazmat.backends import default_backend
+
 from messages.superbase_chat import SupabaseChatStorage
 storage = SupabaseChatStorage()
 timezone = pytz.timezone('Asia/Kolkata')
@@ -75,6 +80,21 @@ app.config.from_object(Config)
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)  # Set JWT token expiry to 15 minutes
 jwt = JWTManager(app)
 users = JWTAESEncryptedSession()
+public_key_pem = base64.b64decode(os.getenv("RSA_PUBLIC_KEY")).decode("utf-8")
+public_key = serialization.load_pem_public_key(
+    public_key_pem.encode(),
+    backend=default_backend()
+)
+
+# Private key (base64 PEM)
+private_key_pem = base64.b64decode(os.getenv("RSA_PRIVATE_KEY")).decode("utf-8")
+private_key = serialization.load_pem_private_key(
+    private_key_pem.encode(),
+    password=None,
+    backend=default_backend()
+)
+
+
 
 # Initialize Firebase Admin based on environment
 try:
@@ -235,14 +255,28 @@ def login():
 def get_key():
     user_id = get_jwt_identity()
     if not user_id:
-        # return jsonify({'error': 'No user ID found'}), 401
         return jsonify({'error': 'No Access'}), 401
-    aes_key=users.get_aes_key(user_id)
-    if aes_key['status']=='error':
+
+    aes_key = users.get_aes_key(user_id)
+
+    if aes_key['status'] == 'error':
         return jsonify({'error': 'Session expired or Invalid'}), 401
     else:
-        aes_key["ads_key"] = aes_key.pop("aes_key")
-        return jsonify(aes_key),200
+        # Decode base64 string → bytes
+        raw_aes_key = base64.b64decode(aes_key.pop("aes_key"))
+
+        encrypted_aes_key = public_key.encrypt(
+            raw_aes_key,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
+
+        aes_key["ads_key"] = base64.b64encode(encrypted_aes_key).decode()
+        return jsonify(aes_key), 200
+
 
 @app.route("/api/user/data", methods=['GET'])
 @jwt_required()
@@ -1811,6 +1845,17 @@ def get_mcq_questions():
     except Exception as e:
         print(f"Error in /api/quiz/questions: {e}")
         return jsonify({'error': str(e)}), 500
+@app.route('/session',methods=['GET'])
+@jwt_required()
+def vaildate_session():
+    user_id = get_jwt_identity()
+    if not user_id:
+        return jsonify({'error': 'Unauthorized'}), 401
+    session = users.get_active_sessions_id(user_id)
+    if session['status'] == "success":
+        return jsonify({"valid":True})
+    else:
+        return jsonify({"valid":False,"session_id":"Not found"}),401
 
 @app.route('/api/interview', methods=['POST'])
 @jwt_required()
@@ -1860,4 +1905,8 @@ def interview():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 if __name__ == '__main__':
-        app.run(host='0.0.0.0',debug=True)
+    import logging
+    logging.basicConfig(level=logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    app.run(host='0.0.0.0',debug=True)

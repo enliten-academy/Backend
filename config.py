@@ -6,6 +6,7 @@ import logging
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
+import base64
 
 # Load environment variables from .env file
 load_dotenv()
@@ -26,8 +27,8 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'default-secret-key')
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'default-jwt-secret')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
-    RSA_PRIVATE_KEY = os.getenv('RSA_PRIVATE_KEY', '').strip('"')
-    RSA_PUBLIC_KEY = os.getenv('RSA_PUBLIC_KEY', '').strip('"')
+    RSA_PRIVATE_KEY = base64.b64decode(os.getenv("RSA_PRIVATE_KEY")).decode("utf-8")
+    RSA_PUBLIC_KEY = base64.b64decode(os.getenv("RSA_PUBLIC_KEY")).decode("utf-8")
     
     # Parse Firebase Admin SDK JSON from environment variable
     try:
