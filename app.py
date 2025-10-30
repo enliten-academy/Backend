@@ -40,6 +40,7 @@ from blueprints.subscription import subscription_bp
 from blueprints.quiz import quiz_bp
 from blueprints.interview import interview_bp
 from blueprints.news import news_bp
+from blueprints.admin import admin_bp
 
 # --- Initialization ---
 app = Flask(__name__)
@@ -217,7 +218,8 @@ app.register_blueprint(subscription_bp, url_prefix='/api/subscription')
 app.register_blueprint(quiz_bp, url_prefix='/api/quiz')
 app.register_blueprint(interview_bp, url_prefix='/api/interview')
 app.register_blueprint(news_bp, url_prefix='/api')
+app.register_blueprint(admin_bp, url_prefix='/api/admin')
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Render provides PORT env var
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(host="0.0.0.0", port=port, debug=True)

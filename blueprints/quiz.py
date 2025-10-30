@@ -67,7 +67,21 @@ def get_mcq_questions():
     category = request.args.get('category')
     subcategory = request.args.get('subcategory')
     try:
+        if not group:
+            return jsonify({'questions': [], 'error': 'Missing group parameter'}), 400
         questions_ref = db.collection('sharedQuestions')
+        # Fetch all questions for group before filtering
+        all_group_docs = questions_ref.where(f'sharedWith.Group_{group}', '==', True).stream()
+        all_group_questions = [doc.to_dict() for doc in all_group_docs]
+        print(f"[DEBUG] Found {len(all_group_questions)} total questions for group={group}")
+        all_categories = set(q.get('category') for q in all_group_questions)
+        all_subcategories = set(q.get('subcategory') for q in all_group_questions)
+        print(f"[DEBUG] Categories for group={group}: {all_categories}")
+        print(f"[DEBUG] Subcategories for group={group}: {all_subcategories}")
+        for idx, q in enumerate(all_group_questions):
+            shared_with = q.get('sharedWith', {})
+            print(f"[DEBUG] Q{idx} sharedWith keys: {list(shared_with.keys())}")
+
         query = questions_ref.where(f'sharedWith.Group_{group}', '==', True)
         if category:
             query = query.where('category', '==', category)
@@ -79,6 +93,10 @@ def get_mcq_questions():
             q = doc.to_dict()
             q['id'] = doc.id
             questions.append(q)
+        if not questions:
+            print(f"[DEBUG] No questions found for group={group}, category={category}, subcategory={subcategory}")
+        else:
+            print(f"[DEBUG] Returning {len(questions)} questions for group={group}, category={category}, subcategory={subcategory}")
         return jsonify({'questions': questions})
     except Exception as e:
         print(f"Error in /api/quiz/questions: {e}")
