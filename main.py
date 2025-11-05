@@ -8,7 +8,7 @@ from config import Config
 import json
 import pyotp
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from services.auth_service import AuthService
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -33,6 +33,9 @@ from utils.admin_encryption import AdminEncryption
 from utils.quotes import get_quote
 from OCRDocument import OCRDocument
 from flask.views import MethodView
+
+# news
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from messages.superbase_chat import SupabaseChatStorage
 storage = SupabaseChatStorage()
@@ -855,6 +858,31 @@ def auth_session():
     except Exception as e:
         print("Error during auth session:", str(e))
         return jsonify({'error': str(e)}), 400
+    
+@app.route("/api/news/today", methods=['GET'])
+@jwt_required()
+def get_today_news():
+    try:
+        user_id = get_jwt_identity()
+        if not user_id:
+            return jsonify({'error': 'No user ID found'}), 401
+
+        today = date.today().strftime("%Y%m%d")
+        doc_ref = db.collection("news").document(today)
+        doc = doc_ref.get()
+
+        if doc.exists:
+            return jsonify({
+                'status': 'success',
+                'data': doc.to_dict()
+            }), 200
+        else:
+            return jsonify({"message": "No news for today"}), 404
+        
+    except Exception as e:
+        print(f"Error fetching news: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+    
 @app.route("/api/hook/news1", methods=['GET'])
 def news_hook1():
     def th():
@@ -1859,5 +1887,56 @@ def interview():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+
+GIST_URL = "https://gist.githubusercontent.com/pappater/17c58ca69bfa6f204a353a76f21b7774/raw/magazine-articles.json"
+def fetch_and_store_news():
+    try:
+        response = requests.get(GIST_URL, timeout=20)
+        response.raise_for_status()
+        data = response.json()
+        date_key = next(iter(data.keys()))
+        articles = data[date_key]
+
+        # group by category
+        categorized = {}
+        for source, items in articles.items():
+            for article in items:
+                cat = article.get("category", "Uncategorized")
+                categorized.setdefault(cat, []).append(article)
+
+        # Format Firestore document name: 20251105
+        doc_id = date_key.replace("-", "")
+        doc_ref = db.collection("news").document(doc_id)
+        existing_doc = doc_ref.get()
+
+        if existing_doc.exists:
+            existing_data = existing_doc.to_dict()
+        else:
+            existing_data = {}
+
+        # Compare and add new articles
+        for cat, items in categorized.items():
+            existing_items = existing_data.get(cat, [])
+            existing_links = {item["link"] for item in existing_items}
+
+            new_items = [i for i in items if i["link"] not in existing_links]
+
+            if new_items:
+                existing_items.extend(new_items)
+                existing_data[cat] = existing_items
+        doc_ref.set(existing_data)
+
+    except Exception as e:
+        print(f"Error fetching or storing news: {e}")
+
+    
+# scheduler to fetch daily news for 1 hr
+scheduler = BackgroundScheduler()
+scheduler.add_job(fetch_and_store_news, "interval", hours=1)
+scheduler.start()
+
+# Fetch once on startup
+fetch_and_store_news()
 if __name__ == '__main__':
         app.run(host='0.0.0.0',debug=True)
