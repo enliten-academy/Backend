@@ -8,6 +8,7 @@ pyotp==2.9.0
 requests==2.31.0
 flask-limiter==3.5.0
 Werkzeug==2.2.3
+APScheduler==3.11.1
 google-generativeai
 datetime
 google.genai
