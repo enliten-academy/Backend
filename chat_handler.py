@@ -5,7 +5,7 @@ import json
 user_chats = {}
 
 # Initialize Gemini client
-genai.configure(api_key="AIzaSyBQgUq_pscmRRw36Y7HKt3dvDTgKTQvUA4")
+genai.configure(api_key="AIzaSyC-51nhb0cWg2d_G-nm5l1xRFsxr_0beMk")
 
 def create_heuristic_prompt(topic):
     return f"""
@@ -184,7 +184,6 @@ The candidate prefers to communicate in **{language}**. Use **only {language}** 
 Remember, your ultimate purpose is to make TNPSC preparation more accessible, effective, and less stressful for candidates. Serve as their knowledgeable guide, patient teacher, and supportive coach throughout their journey to success in TNPSC exams.""")
         chat = chat_model.start_chat(history=[])
         user_chats[user_id] = chat
-
     chat_session = user_chats[user_id]  # Retrieve user's chat session
     chat_session.send_message( f"""
         # TNPSC AI Assistant System Instructions
