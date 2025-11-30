@@ -34,15 +34,8 @@ from utils.quotes import get_quote
 from OCRDocument import OCRDocument
 from flask.views import MethodView
 
-<<<<<<< HEAD
 # news
 from apscheduler.schedulers.background import BackgroundScheduler
-=======
-from cryptography.hazmat.primitives import serialization, hashes
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives.ciphers import algorithms
-from cryptography.hazmat.backends import default_backend
->>>>>>> 3764711d06c16ec3d37cea21652aa5c841df7c40
 
 from messages.superbase_chat import SupabaseChatStorage
 storage = SupabaseChatStorage()
