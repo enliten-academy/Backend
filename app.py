@@ -22,12 +22,15 @@ from utils.encryption import Encryption
 from utils.admin_encryption import AdminEncryption
 from utils.jwt_aes_encrypted_session import JWTAESEncryptedSession
 from utils.utils import get_user_role
+# from utils.fetch_news import fetch_and_store_news
 
 from services.auth_service import AuthService
 from services.memory_store import MemoryStore
 from services.superbase_chat import SupabaseChatStorage
 from services.OCRDocument import OCRDocument
 from services.chat_handler import get_chat_response, generate_title
+# news BackgroundScheduler import
+# from apscheduler.schedulers.background import BackgroundScheduler
 
 # --- Blueprints ---
 from blueprints.auth import auth_bp
@@ -41,6 +44,7 @@ from blueprints.quiz import quiz_bp
 from blueprints.interview import interview_bp
 from blueprints.news import news_bp
 from blueprints.admin import admin_bp
+from blueprints.test import test_bp
 
 # --- Initialization ---
 app = Flask(__name__)
@@ -96,6 +100,7 @@ try:
     if not firebase_admin._apps:
         firebase_admin.initialize_app(cred)
     db = firestore.client()
+    app.db = db
     print("Firebase Admin initialized successfully")
 except Exception as e:
     print(f"Firebase initialization error: {str(e)}")
@@ -219,6 +224,12 @@ app.register_blueprint(quiz_bp, url_prefix='/api/quiz')
 app.register_blueprint(interview_bp, url_prefix='/api/interview')
 app.register_blueprint(news_bp, url_prefix='/api')
 app.register_blueprint(admin_bp, url_prefix='/api/admin')
+app.register_blueprint(test_bp, url_prefix='/api/test')
+
+# scheduler to fetch daily news every 1 hr
+# scheduler = BackgroundScheduler()
+# scheduler.add_job(lambda: fetch_and_store_news(db), "interval", hours=1)
+# scheduler.start()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Render provides PORT env var

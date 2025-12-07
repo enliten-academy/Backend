@@ -8,8 +8,12 @@ pyotp==2.9.0
 requests==2.31.0
 flask-limiter==3.5.0
 Werkzeug==2.2.3
+<<<<<<< HEAD
+APScheduler==3.11.1
+=======
 
 # AI + APIs
+>>>>>>> 3764711d06c16ec3d37cea21652aa5c841df7c40
 google-generativeai
 google-auth==2.29.0
 rsa==4.9
