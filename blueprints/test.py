@@ -317,7 +317,7 @@ def get_session(session_id):
         "remaining_seconds": remaining_seconds
         }}), 200
 
-@test_bp.route("/submit_exam", methods=["POST"])
+@test_bp.route("/submit", methods=["POST"])
 @jwt_required()
 def submit_exam():
     user_id = get_jwt_identity()

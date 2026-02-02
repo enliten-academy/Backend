@@ -45,6 +45,7 @@ from blueprints.interview import interview_bp
 from blueprints.news import news_bp
 from blueprints.admin import admin_bp
 from blueprints.test import test_bp
+from blueprints.mainstest import mains_bp
 
 # --- Initialization ---
 app = Flask(__name__)
@@ -225,11 +226,8 @@ app.register_blueprint(interview_bp, url_prefix='/api/interview')
 app.register_blueprint(news_bp, url_prefix='/api')
 app.register_blueprint(admin_bp, url_prefix='/api/admin')
 app.register_blueprint(test_bp, url_prefix='/api/test')
+app.register_blueprint(mains_bp, url_prefix='/api/mains')
 
-# scheduler to fetch daily news every 1 hr
-# scheduler = BackgroundScheduler()
-# scheduler.add_job(lambda: fetch_and_store_news(db), "interval", hours=1)
-# scheduler.start()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Render provides PORT env var
