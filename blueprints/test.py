@@ -5,7 +5,8 @@ import random
 import datetime
 from typing import Dict, Any
 from flask import Blueprint, request, jsonify, current_app
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request
+
 
 test_bp = Blueprint('test', __name__)
 
@@ -317,9 +318,11 @@ def get_session(session_id):
         "remaining_seconds": remaining_seconds
         }}), 200
 
-@test_bp.route("/submit", methods=["POST"])
-@jwt_required()
+@test_bp.route("/submit_exam", methods=["POST", "OPTIONS"])
 def submit_exam():
+    if request.method == "OPTIONS":
+        return "", 200
+    verify_jwt_in_request()
     user_id = get_jwt_identity()
     if not user_id:
         return jsonify({'status': 'error','data': 'No user ID found'}), 401
